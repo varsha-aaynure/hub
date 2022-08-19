@@ -40,7 +40,7 @@ catalogs:
     type: community
     provider: github
     url: https://github.com/varsha-aaynure/catalog
-    revision: test-1.8
+    revision: main
 
 scopes:
   - name: agent:create
