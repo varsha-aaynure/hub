@@ -8,7 +8,7 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/go-co-op/gocron v1.17.1
+	github.com/go-co-op/gocron v1.18.0
 	github.com/go-gormigrate/gormigrate/v2 v2.0.2
 	github.com/go-testfixtures/testfixtures/v3 v3.8.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -18,7 +18,7 @@ require (
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/ikawaha/goahttpcheck v1.13.3
 	github.com/joho/godotenv v1.4.0
-	github.com/markbates/goth v1.75.1
+	github.com/markbates/goth v1.75.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/viper v1.14.0
@@ -29,14 +29,14 @@ require (
 	go.uber.org/zap v1.23.0
 	goa.design/goa/v3 v3.10.2
 	goa.design/plugins/v3 v3.10.2
-	golang.org/x/term v0.1.0
+	golang.org/x/term v0.2.0
 	golang.org/x/text v0.4.0
 	gopkg.in/h2non/gock.v1 v1.1.2
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.1-0.20221019064659-5dd2bb482755
 	gotest.tools/v3 v3.4.0
-	k8s.io/apimachinery v0.25.3
-	k8s.io/client-go v0.25.3
+	k8s.io/apimachinery v0.25.4
+	k8s.io/client-go v0.25.4
 	knative.dev/pkg v0.0.0-20221011175852-714b7630a836
 )
 
@@ -146,7 +146,7 @@ require (
 	golang.org/x/net v0.1.0 // indirect
 	golang.org/x/oauth2 v0.1.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/time v0.0.0-20220922220347-f3bd1da661af // indirect
 	golang.org/x/tools v0.2.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.2.0 // indirect
@@ -159,7 +159,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.25.3 // indirect
+	k8s.io/api v0.25.4 // indirect
 	k8s.io/klog/v2 v2.70.2-0.20220707122935-0990e81f1a8f // indirect
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1 // indirect
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed // indirect
