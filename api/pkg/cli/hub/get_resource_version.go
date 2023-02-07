@@ -43,14 +43,14 @@ type TektonHubResourceVersionResult struct {
 	versions *ResVersions
 }
 
-// GetResourceVersion queries the data using Artifact Hub Endpoint
+// GetResourceVersions queries the data using Artifact Hub Endpoint
 func (a *artifactHubClient) GetResourceVersions(opt ResourceOption) ResourceVersionResult {
 	// Todo: implement GetResourceVersions for Artifact Hub
 	return nil
 }
 
-// GetResourceVersion queries the data using Tekton Hub Endpoint
-func (t *tektonHubclient) GetResourceVersions(opt ResourceOption) ResourceVersionResult {
+// GetResourceVersions queries the data using Tekton Hub Endpoint
+func (t *tektonHubClient) GetResourceVersions(opt ResourceOption) ResourceVersionResult {
 
 	rvr := TektonHubResourceVersionResult{set: false}
 
