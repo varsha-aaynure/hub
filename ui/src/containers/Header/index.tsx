@@ -1,6 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   PageHeader,
   Brand,
@@ -26,7 +26,12 @@ import Icon from '../../components/Icon';
 import { Icons } from '../../common/icons';
 import UserProfile from '../UserProfile';
 import { useMst } from '../../store/root';
-import { AUTH_BASE_URL, REDIRECT_URI } from '../../config/constants';
+import {
+  AUTH_BASE_URL,
+  CUSTOM_LOGO_BASE64_DATA,
+  CUSTOM_LOGO_MEDIA_TYPE,
+  REDIRECT_URI
+} from '../../config/constants';
 import { IProvider } from '../../store/provider';
 import { titleCase } from '../../common/titlecase';
 import AlertDisplay from '../../components/AlertDisplay';
@@ -35,7 +40,7 @@ import { apiDownError } from '../../common/errors';
 
 const Header: React.FC = observer(() => {
   const { user, resources, providers } = useMst();
-  const history = useHistory();
+  const history = useNavigate();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [disable, setDisable] = React.useState(false);
 
@@ -66,14 +71,32 @@ const Header: React.FC = observer(() => {
   );
 
   const homePage = () => {
-    if (!window.location.search) history.push('/');
+    if (!window.location.search) history('/');
     scrollToTop();
+  };
+
+  const disableButtonAndSetPath = () => {
+    user.setPath(window.location.pathname);
+    setDisable(true);
+    localStorage.setItem('path', window.location.pathname);
   };
 
   return (
     <React.Fragment>
       <PageHeader
-        logo={<Brand src={logo} alt="Tekton Hub Logo" onClick={homePage} />}
+        logo={
+          <Brand
+            src={
+              CUSTOM_LOGO_BASE64_DATA != ''
+                ? `data:${
+                    CUSTOM_LOGO_MEDIA_TYPE != '' ? CUSTOM_LOGO_MEDIA_TYPE : 'image/png'
+                  }${CUSTOM_LOGO_MEDIA_TYPE};base64,${CUSTOM_LOGO_BASE64_DATA}`
+                : logo
+            }
+            alt="Tekton Hub Logo"
+            onClick={homePage}
+          />
+        }
         headerTools={headerTools}
       />
 
@@ -115,7 +138,7 @@ const Header: React.FC = observer(() => {
                 variant="tertiary"
                 component="a"
                 isDisabled={disable}
-                onClick={() => setDisable(true)}
+                onClick={() => disableButtonAndSetPath()}
                 isBlock
                 href={`${AUTH_BASE_URL}/auth/${provider.name}?redirect_uri=${REDIRECT_URI}`}
               >

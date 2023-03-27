@@ -1,5 +1,4 @@
-import { ReactComponent } from '*.svg';
-import { FormSelectOption, TextInput } from '@patternfly/react-core';
+import { TextInput } from '@patternfly/react-core';
 import { mount, shallow } from 'enzyme';
 import { when } from 'mobx';
 import React from 'react';
@@ -13,7 +12,7 @@ const api = new FakeHub(TESTDATA_DIR);
 const { Provider, root } = createProviderAndStore(api);
 
 jest.mock('react-router-dom', () => ({
-  useHistory: () => ({
+  useNavigate: () => ({
     replace: jest.fn()
   })
 }));
