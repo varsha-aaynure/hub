@@ -332,6 +332,7 @@ func initResource(r model.Resource) *resource.ResourceData {
 	}
 	res.Kind = r.Kind
 	res.HubURLPath = fmt.Sprintf("%s/%s/%s", r.Catalog.Name, r.Kind, r.Name)
+	res.HubRawURLPath = fmt.Sprintf("resource/%s/%s/%s/raw", r.Catalog.Name, strings.ToLower(r.Kind), r.Name)
 	res.Rating = r.Rating
 
 	lv := (r.Versions)[len(r.Versions)-1]
@@ -353,6 +354,7 @@ func initResource(r model.Resource) *resource.ResourceData {
 		WebURL:              lv.URL,
 		RawURL:              getStringReplacer(lv.URL, r.Catalog.Provider).Replace(lv.URL),
 		HubURLPath:          fmt.Sprintf("%s/%s/%s/%s", r.Catalog.Name, r.Kind, r.Name, lv.Version),
+		HubRawURLPath:       fmt.Sprintf("resource/%s/%s/%s/%s/raw", r.Catalog.Name, strings.ToLower(r.Kind), lv.Version, r.Name),
 		UpdatedAt:           lv.ModifiedAt.UTC().Format(time.RFC3339),
 		Platforms:           platforms,
 	}
@@ -418,7 +420,7 @@ func minVersionInfo(r model.ResourceVersion) *resource.ResourceVersionData {
 	res.Platforms = platforms
 
 	res.HubURLPath = fmt.Sprintf("%s/%s/%s/%s", r.Resource.Catalog.Name, r.Resource.Kind, r.Resource.Name, r.Version)
-
+	res.HubRawURLPath = fmt.Sprintf("resource/%s/%s/%s/%s/raw", r.Resource.Catalog.Name, strings.ToLower(r.Resource.Kind), r.Resource.Name, r.Version)
 	return res
 }
 
@@ -484,6 +486,7 @@ func versionInfoFromResource(r model.Resource, version string) *resource.Resourc
 		UpdatedAt:           v.ModifiedAt.UTC().Format(time.RFC3339),
 		Resource:            res,
 		Platforms:           verPlatforms,
+		HubRawURLPath:       fmt.Sprintf("resource/%s/%s/%s/%s/raw", r.Catalog.Name, strings.ToLower(r.Kind), r.Name, v.Version),
 	}
 
 	// Adds deprecated field in resource's version
@@ -509,6 +512,39 @@ func (s *service) GetRawYamlByCatalogKindNameVersion(ctx context.Context, p *res
 	s.Logger(ctx).Info(fmt.Sprintf("Fetching YAML for resource %s", p.Name))
 
 	yamlPath := fmt.Sprintf("%s/%s/%s/%s/%s", s.CatalogClonePath(), strings.ToLower(p.Catalog), strings.ToLower(p.Kind), p.Name, p.Version)
+	yamlPath = fmt.Sprintf("%s/%s.yaml", yamlPath, p.Name)
+
+	content, err := os.ReadFile(yamlPath)
+	if err != nil {
+		return nil, resource.MakeNotFound(fmt.Errorf("resource not found"))
+	}
+
+	return io.NopCloser(bytes.NewBuffer(content)), nil
+}
+
+// Fetch a raw resource yaml file using the name of catalog, resource name, and kind
+func (s *service) GetLatestRawYamlByCatalogKindName(ctx context.Context, p *resource.GetLatestRawYamlByCatalogKindNamePayload) (io.ReadCloser, error) {
+	s.Logger(ctx).Info(fmt.Sprintf("Fetching Latest YAML for resource %s", p.Name))
+
+	req := res.Request{
+		Db:      s.DB(ctx),
+		Log:     s.Logger(ctx),
+		Kind:    p.Kind,
+		Catalog: p.Catalog,
+		Name:    p.Name,
+	}
+
+	version, err := req.GetLatestVersion()
+	if err != nil {
+		if err == res.NotFoundError {
+			return nil, resource.MakeNotFound(err)
+		}
+		if err == res.FetchError {
+			return nil, resource.MakeInternalError(err)
+		}
+	}
+
+	yamlPath := fmt.Sprintf("%s/%s/%s/%s/%s", s.CatalogClonePath(), strings.ToLower(p.Catalog), strings.ToLower(p.Kind), p.Name, version)
 	yamlPath = fmt.Sprintf("%s/%s.yaml", yamlPath, p.Name)
 
 	content, err := os.ReadFile(yamlPath)

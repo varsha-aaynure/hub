@@ -884,16 +884,96 @@ func EncodeGetRawYamlByCatalogKindNameVersionError(encoder func(context.Context,
 	}
 }
 
+// EncodeGetLatestRawYamlByCatalogKindNameResponse returns an encoder for
+// responses returned by the resource GetLatestRawYamlByCatalogKindName
+// endpoint.
+func EncodeGetLatestRawYamlByCatalogKindNameResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		w.WriteHeader(http.StatusOK)
+		return nil
+	}
+}
+
+// DecodeGetLatestRawYamlByCatalogKindNameRequest returns a decoder for
+// requests sent to the resource GetLatestRawYamlByCatalogKindName endpoint.
+func DecodeGetLatestRawYamlByCatalogKindNameRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			catalog string
+			kind    string
+			name    string
+			err     error
+
+			params = mux.Vars(r)
+		)
+		catalog = params["catalog"]
+		kind = params["kind"]
+		if !(kind == "task" || kind == "pipeline") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("kind", kind, []interface{}{"task", "pipeline"}))
+		}
+		name = params["name"]
+		if err != nil {
+			return nil, err
+		}
+		payload := NewGetLatestRawYamlByCatalogKindNamePayload(catalog, kind, name)
+
+		return payload, nil
+	}
+}
+
+// EncodeGetLatestRawYamlByCatalogKindNameError returns an encoder for errors
+// returned by the GetLatestRawYamlByCatalogKindName resource endpoint.
+func EncodeGetLatestRawYamlByCatalogKindNameError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "internal-error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewGetLatestRawYamlByCatalogKindNameInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		case "not-found":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body interface{}
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewGetLatestRawYamlByCatalogKindNameNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // marshalResourceviewsResourceDataViewToResourceDataResponseBodyWithoutVersion
 // builds a value of type *ResourceDataResponseBodyWithoutVersion from a value
 // of type *resourceviews.ResourceDataView.
 func marshalResourceviewsResourceDataViewToResourceDataResponseBodyWithoutVersion(v *resourceviews.ResourceDataView) *ResourceDataResponseBodyWithoutVersion {
 	res := &ResourceDataResponseBodyWithoutVersion{
-		ID:         *v.ID,
-		Name:       *v.Name,
-		Kind:       *v.Kind,
-		HubURLPath: *v.HubURLPath,
-		Rating:     *v.Rating,
+		ID:            *v.ID,
+		Name:          *v.Name,
+		Kind:          *v.Kind,
+		HubURLPath:    *v.HubURLPath,
+		HubRawURLPath: *v.HubRawURLPath,
+		Rating:        *v.Rating,
 	}
 	if v.Catalog != nil {
 		res.Catalog = marshalResourceviewsCatalogViewToCatalogResponseBodyMin(v.Catalog)
@@ -959,6 +1039,7 @@ func marshalResourceviewsResourceVersionDataViewToResourceVersionDataResponseBod
 		MinPipelinesVersion: *v.MinPipelinesVersion,
 		RawURL:              *v.RawURL,
 		WebURL:              *v.WebURL,
+		HubRawURLPath:       *v.HubRawURLPath,
 		UpdatedAt:           *v.UpdatedAt,
 		HubURLPath:          *v.HubURLPath,
 	}
@@ -1016,11 +1097,12 @@ func marshalResourceviewsVersionsViewToVersionsResponseBody(v *resourceviews.Ver
 // type *resourceviews.ResourceVersionDataView.
 func marshalResourceviewsResourceVersionDataViewToResourceVersionDataResponseBodyMin(v *resourceviews.ResourceVersionDataView) *ResourceVersionDataResponseBodyMin {
 	res := &ResourceVersionDataResponseBodyMin{
-		ID:         *v.ID,
-		Version:    *v.Version,
-		RawURL:     *v.RawURL,
-		WebURL:     *v.WebURL,
-		HubURLPath: *v.HubURLPath,
+		ID:            *v.ID,
+		Version:       *v.Version,
+		RawURL:        *v.RawURL,
+		WebURL:        *v.WebURL,
+		HubRawURLPath: *v.HubRawURLPath,
+		HubURLPath:    *v.HubURLPath,
 	}
 	if v.Platforms != nil {
 		res.Platforms = make([]*PlatformResponseBody, len(v.Platforms))
@@ -1045,6 +1127,7 @@ func marshalResourceviewsResourceVersionDataViewToResourceVersionDataResponseBod
 		MinPipelinesVersion: *v.MinPipelinesVersion,
 		RawURL:              *v.RawURL,
 		WebURL:              *v.WebURL,
+		HubRawURLPath:       *v.HubRawURLPath,
 		UpdatedAt:           *v.UpdatedAt,
 		HubURLPath:          *v.HubURLPath,
 	}
@@ -1124,11 +1207,12 @@ func marshalResourceviewsResourceContentViewToResourceContentResponseBodyYaml(v 
 // *resourceviews.ResourceDataView.
 func marshalResourceviewsResourceDataViewToResourceDataResponseBody(v *resourceviews.ResourceDataView) *ResourceDataResponseBody {
 	res := &ResourceDataResponseBody{
-		ID:         *v.ID,
-		Name:       *v.Name,
-		Kind:       *v.Kind,
-		HubURLPath: *v.HubURLPath,
-		Rating:     *v.Rating,
+		ID:            *v.ID,
+		Name:          *v.Name,
+		Kind:          *v.Kind,
+		HubURLPath:    *v.HubURLPath,
+		HubRawURLPath: *v.HubRawURLPath,
+		Rating:        *v.Rating,
 	}
 	if v.Catalog != nil {
 		res.Catalog = marshalResourceviewsCatalogViewToCatalogResponseBodyMin(v.Catalog)
