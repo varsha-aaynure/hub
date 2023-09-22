@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM golang:1.18.2-alpine3.14 AS builder
+FROM --platform=$BUILDPLATFORM golang:1.20.7-alpine3.18 AS builder
 
 WORKDIR /go/src/github.com/tektoncd/hub
 COPY . .
@@ -7,7 +7,7 @@ ARG TARGETARCH
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o db-migration ./api/cmd/db/...
 
-FROM alpine:3.17.2
+FROM alpine:3.18.3
 
 RUN apk --no-cache add ca-certificates && addgroup -S hub && adduser -S hub -G hub
 USER hub
