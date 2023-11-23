@@ -13,7 +13,7 @@ const (
 )
 
 // ClientFile returns the client file for the given service.
-func ClientFile(genpkg string, service *expr.ServiceExpr) *codegen.File {
+func ClientFile(_ string, service *expr.ServiceExpr) *codegen.File {
 	svc := Services.Get(service.Name)
 	data := endpointData(service)
 	path := filepath.Join(codegen.Gendir, svc.PathName, "client.go")
@@ -85,7 +85,7 @@ const serviceClientMethodT = `
 {{- if .ClientStream }}
 	{{- $resultType = .ClientStream.Interface }}
 {{- end }}
-func (c *{{ .ClientVarName }}) {{ .VarName }}(ctx context.Context, {{ if .PayloadRef }}p {{ .PayloadRef }}{{ end }}{{ if .MethodData.SkipRequestBodyEncodeDecode}}, req io.ReadCloser{{ end }}) ({{ if $resultType }}res {{ $resultType }}, {{ end }}{{ if .MethodData.SkipResponseBodyEncodeDecode }}resp io.ReadCloser, {{ end }}err error) {
+func (c *{{ .ClientVarName }}) {{ .VarName }}(ctx context.Context{{ if .PayloadRef }}, p {{ .PayloadRef }}{{ end }}{{ if .MethodData.SkipRequestBodyEncodeDecode}}, req io.ReadCloser{{ end }}) ({{ if $resultType }}res {{ $resultType }}, {{ end }}{{ if .MethodData.SkipResponseBodyEncodeDecode }}resp io.ReadCloser, {{ end }}err error) {
 	{{- if or $resultType .MethodData.SkipResponseBodyEncodeDecode }}
 	var ires any
 	{{- end }}
